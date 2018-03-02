@@ -1,6 +1,6 @@
 import pandas as pd
 from bokeh.io import curdoc
-from bokeh.models import ColumnDataSource
+from bokeh.models import ColumnDataSource, Select
 from bokeh.plotting import figure
 from bokeh.models import CategoricalColorMapper
 from bokeh.palettes import Spectral6
@@ -51,8 +51,14 @@ plot.legend.location = 'top_right'
 
 # Define the callback function: update_plot
 def update_plot(attr, old, new):
-    # set the `yr` name to `slider.value` and `source.data = new_data`
+    # Read the current value off the slider and 2 dropdowns: yr, x, y
     yr = slider.value
+    x = x_select.value
+    y = y_select.value
+    # Label axes of plot
+    plot.xaxis.axis_label = x
+    plot.yaxis.axis_label = y
+    # Set new_data
     new_data = {
         'x': data.loc[yr].fertility,
         'y': data.loc[yr].life,
@@ -61,6 +67,13 @@ def update_plot(attr, old, new):
         'region': data.loc[yr].region,
     }
     source.data = new_data
+
+    # Set the range of all axes
+    plot.x_range.start = min(data[x])
+    plot.x_range.end = max(data[x])
+    plot.y_range.start = min(data[y])
+    plot.y_range.end = max(data[y])
+
     # Add title to figure: plot.title.text
     plot.title.text = 'Gapminder data for %d' % yr
 
@@ -71,6 +84,26 @@ slider = Slider(start=1970, end=2010, step=1, value=1970, title='Year')
 # Attach the callback to the 'value' property of slider
 slider.on_change('value', update_plot)
 
+# Create a dropdown Select widget for the x data: x_select
+x_select = Select(
+    options=['fertility', 'life', 'child_mortality', 'gdp'],
+    value='fertility',
+    title='x-axis data'
+)
+
+# Attach the update_plot callback to the 'value' property of x_select
+x_select.on_change('value', update_plot)
+
+# Create a dropdown Select widget for the y data: y_select
+y_select = Select(
+    options=['fertility', 'life', 'child_mortality', 'gdp'],
+    value='life',
+    title='y-axis data'
+)
+
+# Attach the update_plot callback to the 'value' property of y_select
+y_select.on_change('value', update_plot)
+
 # Create a HoverTool: hover
 hover = HoverTool(tooltips=[('Country', '@country')])
 
@@ -78,7 +111,7 @@ hover = HoverTool(tooltips=[('Country', '@country')])
 plot.add_tools(hover)
 
 # Make a row layout of widgetbox(slider) and plot and add it to the current document
-layout = row(widgetbox(slider), plot)
+layout = row(widgetbox(slider, x_select, y_select), plot)
 
 # Add the plot to the current document and add a title
 curdoc().add_root(layout)
