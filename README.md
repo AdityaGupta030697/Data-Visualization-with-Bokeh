@@ -5,7 +5,7 @@ The examples in this directory all make use of the Bokeh server, to create data 
 - [x] <b>Gapminder data</b>
 
 ## Running the app
-       $ git https://github.com/AdityaGupta030697/Data-Visualization-with-Bokeh.git
+       $ git clone https://github.com/AdityaGupta030697/Data-Visualization-with-Bokeh.git
        $ cd Data-Visualization-with-Bokeh
        $ pip install -r requirements.txt
        $ bokeh serve Gapminder_visualization.py
